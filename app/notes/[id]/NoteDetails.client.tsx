@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { fetchNoteById } from "@/lib/api";
+import css from "./NoteDetails.module.css";
 import { Note } from "@/types/note";
 
 interface NoteDetailsProps {
@@ -28,11 +29,15 @@ export default function NoteDetailsClient({
   if (error || !note) return <p>Something went wrong.</p>;
 
   return (
-    <div className="note-container">
-      <h2>{note.title}</h2>
-      <p>{note.tag}</p>
-      <p>{note.content}</p>
-      <p>{new Date(note.createdAt).toLocaleString()}</p>
+    <div className={css.container}>
+      <div className={css.item}>
+        <div className={css.header}>
+          <h2>{note.title}</h2>
+        </div>
+        <p className={css.tag}>{note.tag}</p>
+        <p className={css.content}>{note.content}</p>
+        <p className={css.date}>{new Date(note.createdAt).toLocaleString()}</p>
+      </div>
     </div>
   );
 }
