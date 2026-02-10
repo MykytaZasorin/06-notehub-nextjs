@@ -1,11 +1,12 @@
-// src/components/NoteForm/NoteForm.tsx
+"use client";
+
 import { FC } from "react";
-import { useFormik, FormikHelpers, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import css from "./NoteForm.module.css";
-import { createNote, CreateNoteParams } from "../../services/noteService";
+import { createNote, CreateNoteParams } from "@/lib/api";
 
 interface NoteFormProps {
   onCancel: () => void;
@@ -33,84 +34,70 @@ const NoteForm: FC<NoteFormProps> = ({ onCancel }) => {
     },
   });
 
-  const formik = useFormik<CreateNoteParams>({
-    initialValues: {
-      title: "",
-      content: "",
-      tag: "Todo",
-    },
-    validationSchema,
-    onSubmit: (
-      values: CreateNoteParams,
-      helpers: FormikHelpers<CreateNoteParams>,
-    ) => {
-      mutation.mutate(values);
-      helpers.resetForm();
-    },
-  });
-
   return (
-    <form className={css.form} onSubmit={formik.handleSubmit}>
-      <div className={css.formGroup}>
-        <label htmlFor="title">Title</label>
-        <input
-          id="title"
-          name="title"
-          type="text"
-          className={css.input}
-          value={formik.values.title}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        <ErrorMessage name="title" component="span" className={css.error} />
-      </div>
+    <Formik
+      initialValues={{ title: "", content: "", tag: "Todo" }}
+      validationSchema={validationSchema}
+      onSubmit={(values, { resetForm }) => {
+        mutation.mutate(values);
+        resetForm();
+      }}
+    >
+      {({ isSubmitting }) => (
+        <Form className={css.form}>
+          <div className={css.formGroup}>
+            <label htmlFor="title">Title</label>
+            <Field id="title" name="title" className={css.input} />
+            <ErrorMessage name="title" component="span" className={css.error} />
+          </div>
 
-      <div className={css.formGroup}>
-        <label htmlFor="content">Content</label>
-        <textarea
-          id="content"
-          name="content"
-          rows={8}
-          className={css.textarea}
-          value={formik.values.content}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        <ErrorMessage name="content" component="span" className={css.error} />
-      </div>
+          <div className={css.formGroup}>
+            <label htmlFor="content">Content</label>
+            <Field
+              id="content"
+              name="content"
+              as="textarea"
+              rows={8}
+              className={css.textarea}
+            />
+            <ErrorMessage
+              name="content"
+              component="span"
+              className={css.error}
+            />
+          </div>
 
-      <div className={css.formGroup}>
-        <label htmlFor="tag">Tag</label>
-        <select
-          id="tag"
-          name="tag"
-          className={css.select}
-          value={formik.values.tag}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        >
-          <option value="Todo">Todo</option>
-          <option value="Work">Work</option>
-          <option value="Personal">Personal</option>
-          <option value="Meeting">Meeting</option>
-          <option value="Shopping">Shopping</option>
-        </select>
-        <ErrorMessage name="tag" component="span" className={css.error} />
-      </div>
+          <div className={css.formGroup}>
+            <label htmlFor="tag">Tag</label>
+            <Field id="tag" name="tag" as="select" className={css.select}>
+              <option value="Todo">Todo</option>
+              <option value="Work">Work</option>
+              <option value="Personal">Personal</option>
+              <option value="Meeting">Meeting</option>
+              <option value="Shopping">Shopping</option>
+            </Field>
+            <ErrorMessage name="tag" component="span" className={css.error} />
+          </div>
 
-      <div className={css.actions}>
-        <button type="button" className={css.cancelButton} onClick={onCancel}>
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className={css.submitButton}
-          disabled={mutation.status === "pending"}
-        >
-          {mutation.status === "pending" ? "Creating..." : "Create note"}
-        </button>
-      </div>
-    </form>
+          <div className={css.actions}>
+            <button
+              type="button"
+              className={css.cancelButton}
+              onClick={onCancel}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className={css.submitButton}
+              disabled={isSubmitting || mutation.isPending}
+            >
+              {mutation.isPending ? "Creating..." : "Create note"}
+            </button>
+          </div>
+        </Form>
+      )}
+    </Formik>
   );
 };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import css from "./Notes.client.module.css";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDebouncedCallback } from "use-debounce";
@@ -38,25 +39,31 @@ export default function NotesClient() {
 
   return (
     <div>
-      <header>
-        <SearchBox onChange={debouncedSearch} />
-        {data && data.totalPages > 1 && (
-          <Pagination
-            pageCount={data.totalPages}
-            currentPage={page}
-            onPageChange={setPage}
-          />
-        )}
-        <button onClick={() => setIsModalOpen(true)}>Create note +</button>
+      <header className={css.header}>
+        <div className={css.topBar}>
+          <SearchBox onChange={debouncedSearch} />
+          {data && data.totalPages > 1 && (
+            <Pagination
+              pageCount={data.totalPages}
+              currentPage={page}
+              onPageChange={setPage}
+            />
+          )}
+          <button onClick={() => setIsModalOpen(true)}>Create note +</button>
+        </div>
       </header>
 
-      {(isLoading || isFetching) && <p>Loading...</p>}
-      {isError && <p>Something went wrong</p>}
+      {(isLoading || isFetching) && (
+        <div className={css.centeredLoading}>Loading...</div>
+      )}
+      {isError && (
+        <div className={css.centeredLoading}>Something went wrong</div>
+      )}
 
       {data?.notes?.length ? (
         <NoteList notes={data.notes} />
       ) : (
-        !isLoading && <p>No notes found</p>
+        !isLoading && <div className={css.centeredLoading}>No notes found</div>
       )}
 
       {isModalOpen && (
