@@ -1,37 +1,31 @@
-'use client';
+"use client";
 
-import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'next/navigation';
-import { getSingleNote } from '@/lib/api';
+import { useQuery } from "@tanstack/react-query";
+import { fetchNoteById } from "@/lib/api";
 
-const NoteDetailsClient = () => {
-  const { id } = useParams<{ id: string }>();
+interface Props {
+  noteId: string;
+}
 
+export default function NoteDetailsClient({ noteId }: Props) {
   const {
     data: note,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['note', id],
-    queryFn: () => getSingleNote(id),
-    refetchOnMount: false,
+    queryKey: ["note", noteId],
+    queryFn: () => fetchNoteById(noteId),
   });
 
-  if (isLoading) return <p>Loading...</p>;
-
-  if (error || !note) return <p>Some error..</p>;
-
-  const formattedDate = note.updatedAt
-    ? `Updated at: ${note.updatedAt}`
-    : `Created at: ${note.createdAt}`;
+  if (isLoading) return <p>Loading, please wait...</p>;
+  if (error || !note) return <p>Something went wrong.</p>;
 
   return (
     <div>
       <h2>{note.title}</h2>
+      <p>{note.tag}</p>
       <p>{note.content}</p>
-      <p>{formattedDate}</p>
+      <p>{new Date(note.createdAt).toLocaleString()}</p>
     </div>
   );
-};
-
-export default NoteDetailsClient;
+}

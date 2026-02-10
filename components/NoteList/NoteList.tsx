@@ -1,17 +1,53 @@
-// components/NoteList/NoteList.tsx
+"use client";
 
-import { Note } from '@/lib/api';
-import NoteItem from '../NoteItem/NoteItem';
+import { FC } from "react";
+import {
+  useMutation,
+  useQueryClient,
+  UseMutationResult,
+} from "@tanstack/react-query";
+import Link from "next/link";
+import { deleteNote } from "@/lib/api";
+import { Note } from "@/types/note";
+import css from "./NoteList.module.css";
 
-type Props = {
+interface NoteListProps {
   notes: Note[];
-};
+}
 
-const NoteList = ({ notes }: Props) => {
+const NoteList: FC<NoteListProps> = ({ notes }) => {
+  const queryClient = useQueryClient();
+
+  const mutation: UseMutationResult<Note, Error, string, unknown> = useMutation(
+    {
+      mutationFn: deleteNote,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notes"] }),
+    },
+  );
+
   return (
-    <ul>
-      {notes.map(note => (
-        <NoteItem key={note.id} item={note} />
+    <ul className={css.list}>
+      {notes.map((note) => (
+        <li key={note.id} className={css.listItem}>
+          <h2 className={css.title}>{note.title}</h2>
+          <p className={css.content}>{note.content}</p>
+          <div className={css.footer}>
+            <span className={css.tag}>{note.tag}</span>
+
+            {/* Посилання на деталі нотатки */}
+            <Link href={`/notes/${note.id}`} className={css.viewDetails}>
+              View details
+            </Link>
+
+            <button
+              className={css.button}
+              disabled={mutation.status === "pending"}
+              onClick={() => mutation.mutate(note.id)}
+            >
+              {mutation.status === "pending" ? "Deleting..." : "Delete"}
+            </button>
+          </div>
+        </li>
       ))}
     </ul>
   );
