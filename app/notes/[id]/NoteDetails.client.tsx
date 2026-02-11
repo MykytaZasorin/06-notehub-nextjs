@@ -3,17 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchNoteById } from "@/lib/api";
 import css from "./NoteDetails.module.css";
-import { Note } from "@/types/note";
 
 interface NoteDetailsProps {
   noteId: string;
-  initialData?: Note;
 }
 
-export default function NoteDetailsClient({
-  noteId,
-  initialData,
-}: NoteDetailsProps) {
+export default function NoteDetailsClient({ noteId }: NoteDetailsProps) {
   const {
     data: note,
     isLoading,
@@ -21,7 +16,6 @@ export default function NoteDetailsClient({
   } = useQuery({
     queryKey: ["note", noteId],
     queryFn: () => fetchNoteById(noteId),
-    initialData,
     refetchOnMount: false,
   });
 
